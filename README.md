@@ -13,7 +13,7 @@
 1. **Clona o descarga el repositorio** en tu máquina.
 2. Abre una terminal y navega a la carpeta del proyecto:
    ```sh
-   cd "Constructiniii (1)"
+   cd "Consstructini"
    ```
 3. **Instala las dependencias**:
    ```sh
