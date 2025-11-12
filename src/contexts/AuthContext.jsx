@@ -198,16 +198,38 @@ const AuthProviderInternal = ({ children }) => {
   const addProject = async (projectData) => {
     setLoading(true);
     try {
-      const newProjects = await createProjectService(projectData);
-      toast({title: "Project Created", description: `${projectData.name} has been successfully created.`});
-      if (newProjects) {
-        setProjects(prev => [...prev, newProjects]);
+      console.log('addProject: Starting project creation with data:', projectData);
+      const newProject = await createProjectService(projectData);
+      console.log('addProject: Project service returned:', newProject);
+      
+      if (newProject) {
+        // Fetch manager name if manager_id exists
+        let projectWithManager = newProject;
+        if (newProject.manager_id) {
+          const manager = allUsers.find(u => u.id === newProject.manager_id);
+          if (manager) {
+            projectWithManager = { ...newProject, manager: manager.name };
+          }
+        }
+        
+        toast({title: "Project Created", description: `${projectData.name} has been successfully created.`});
+        setProjects(prev => [...prev, projectWithManager]);
+        console.log('addProject: Project added to state successfully');
+        return projectWithManager;
       } else {
-        console.warn("Project created but returned no data.", projectData);
+        console.error("addProject: Project created but returned no data!", projectData);
+        toast({
+          variant: "destructive",
+          title: "Warning",
+          description: "Project may have been created but no data was returned. Refreshing..."
+        });
         loadInitialData();
+        return null;
       }
     } catch (error) {
-      handleError(error, "Project Creation Failed");
+      console.error('addProject: Error caught:', error);
+      handleError(error, "Project Creation Failed", error.message || "Failed to create project. Check console for details.");
+      throw error; // Re-throw so the calling component can handle it
     } finally {
       setLoading(false);
     }

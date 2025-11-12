@@ -43,6 +43,8 @@ import { supabase } from '@/lib/supabaseClient';
 
     export const createProject = async (projectData) => {
       try {
+        console.log('createProject: Received projectData:', projectData);
+        
         // Convert camelCase to snake_case for database
         const { locationName, manager_id, ...rest } = projectData;
         const dbProjectData = {
@@ -52,14 +54,23 @@ import { supabase } from '@/lib/supabaseClient';
           manager_id: manager_id && manager_id.trim() !== '' ? manager_id : null
         };
         
+        console.log('createProject: Transformed dbProjectData:', dbProjectData);
+        
         const { data, error } = await supabase
           .from('projects')
           .insert([dbProjectData])
           .select()
           .single();
-        if (error) throw error;
+        
+        if (error) {
+          console.error('createProject: Supabase error:', error);
+          throw error;
+        }
+        
+        console.log('createProject: Success! Created project:', data);
         return data;
       } catch (error) {
+        console.error('createProject: Caught error:', error);
         handleSupabaseError(error, 'createProject');
         throw error;
       }

@@ -244,6 +244,7 @@ const ProjectFormModal = ({ isOpen, setIsOpen, project, onProjectSubmit }) => {
       }
 
       await onProjectSubmit(projectData);
+      // Only show success toast and close modal if no error was thrown
       setIsOpen(false);
       toast({ 
         title: isEditMode ? "Project Updated" : "Project Created", 
@@ -251,11 +252,16 @@ const ProjectFormModal = ({ isOpen, setIsOpen, project, onProjectSubmit }) => {
       });
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'} project:`, error);
-      toast({ 
-        variant: "destructive", 
-        title: "Error", 
-        description: `Failed to ${isEditMode ? 'update' : 'create'} project.` 
-      });
+      // Error toast is already shown in addProject/updateProject, but show a generic one here too
+      if (!error.message || !error.message.includes('Project Creation Failed')) {
+        toast({ 
+          variant: "destructive", 
+          title: "Error", 
+          description: `Failed to ${isEditMode ? 'update' : 'create'} project. Check console for details.` 
+        });
+      }
+      // Don't close modal on error so user can fix and retry
+      // setIsOpen remains true, so modal stays open
     }
   };
 
@@ -538,8 +544,20 @@ export default function AdminProjectManagementPage() {
         );
       } else {
         // Create new project
-        const createdProject = await addProject(projectData);
-      setLocalProjects(prev => [...prev, createdProject]);
+        try {
+          const createdProject = await addProject(projectData);
+          if (createdProject) {
+            // Add manager name to the project for display
+            const projectWithManager = {
+              ...createdProject,
+              manager: managers.find(m => m.id === createdProject.manager_id)?.name || 'Unassigned'
+            };
+            setLocalProjects(prev => [...prev, projectWithManager]);
+          }
+        } catch (error) {
+          // Error already handled in addProject, but we need to re-throw to prevent the success toast
+          throw error;
+        }
       }
       setProjectToEdit(null);
       setIsModalOpen(false);
@@ -564,7 +582,7 @@ export default function AdminProjectManagementPage() {
 
   const filteredProjects = localProjects.filter(project => 
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.locationName.toLowerCase().includes(searchTerm.toLowerCase())
+    (project.location_name || project.locationName || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleEditClick = (project) => {
