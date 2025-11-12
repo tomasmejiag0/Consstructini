@@ -28,10 +28,12 @@ import { supabase } from '@/lib/supabaseClient';
         // Create a map of manager IDs to names
         const managerMap = new Map(managers.map(m => [m.id, m.name]));
 
-        // Combine the data
+        // Combine the data and ensure location_name is available (for consistency)
         const projectsWithManagerName = projects.map(project => ({
           ...project,
-          manager: managerMap.get(project.manager_id) || 'Unassigned'
+          manager: managerMap.get(project.manager_id) || 'Unassigned',
+          // Ensure location_name exists (it should from DB, but add fallback for compatibility)
+          location_name: project.location_name || project.locationName || ''
         }));
 
         return projectsWithManagerName || [];

@@ -37,7 +37,7 @@ const ProjectFormModal = ({ isOpen, setIsOpen, project, onProjectSubmit }) => {
     if (project) {
       setProjectName(project.name || '');
       setProjectDescription(project.description || '');
-      setLocationName(project.locationName || '');
+      setLocationName(project.location_name || project.locationName || '');
       // Ensure coordinates are treated as numbers by the map logic later
       setLatitude(project.latitude ? project.latitude.toString() : '');
       setLongitude(project.longitude ? project.longitude.toString() : '');
@@ -663,7 +663,7 @@ export default function AdminProjectManagementPage() {
                       <div>
                         <CardTitle className="text-xl text-primary">{project.name}</CardTitle>
                         <CardDescription className="flex items-center text-muted-foreground">
-                          <MapPin size={14} className="mr-1" /> {project.locationName}
+                          <MapPin size={14} className="mr-1" /> {project.location_name || project.locationName || 'N/A'}
                         </CardDescription>
                       </div>
                       <div className="flex items-center gap-2">
@@ -775,7 +775,7 @@ export default function AdminProjectManagementPage() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Location</p>
-                    <p className="font-medium">{selectedProject.locationName}</p>
+                    <p className="font-medium">{selectedProject.location_name || selectedProject.locationName || 'N/A'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Status</p>

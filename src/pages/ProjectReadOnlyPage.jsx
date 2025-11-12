@@ -447,7 +447,7 @@ export default function ProjectReadOnlyPage() {
             <Card className="glassmorphism-card">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-foreground">{currentProject.name}</CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">{currentProject.locationName}</CardDescription>
+                <CardDescription className="text-sm text-muted-foreground">{currentProject.location_name || currentProject.locationName || 'N/A'}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-foreground text-sm leading-relaxed">{currentProject.description || 'No description provided.'}</p>
