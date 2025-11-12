@@ -69,7 +69,7 @@ export default function SystemSettingsPage() {
   // Helper para obtener tareas asignadas a ese usuario en ese proyecto
   const getUserTasks = (userId, projectId) => {
     return tasks
-      .filter(t => t.assigned_to === userId && t.projectId === projectId)
+      .filter(t => t.assigned_to_user_id === userId && t.project_id === projectId)
       .map(t => t.title)
       .join(', ') || '-';
   };

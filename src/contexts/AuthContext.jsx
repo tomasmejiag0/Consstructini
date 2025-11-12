@@ -82,7 +82,7 @@ const AuthProviderInternal = ({ children }) => {
         // Si ya existe project.progress, úsalo. Si no, calcula un dummy.
         if (typeof project.progress === 'numeric') return project;
         // Ejemplo: calcula progreso por tareas completadas
-        const projectTasks = (fetchedTasks || []).filter(t => t.projectId === project.id);
+        const projectTasks = (fetchedTasks || []).filter(t => t.project_id === project.id);
         const completed = projectTasks.filter(t => t.status === 'Completed').length;
         const total = projectTasks.length;
         const progress = total > 0 ? Math.round((completed / total) * 100) : 0;

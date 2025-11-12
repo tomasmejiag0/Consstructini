@@ -201,11 +201,11 @@ export default function ProjectManagerDashboardPage() {
                       <div className="flex items-center gap-4">
                         <div className="flex items-center">
                           <Calendar size={14} className="mr-1 text-tertiary" />
-                          <span>Start: {new Date(project.start_date).toLocaleDateString()}</span>
+                          <span>Created: {new Date(project.created_at).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center">
                           <Clock size={14} className="mr-1 text-tertiary" />
-                          <span>Due: {new Date(project.due_date).toLocaleDateString()}</span>
+                          <span>Status: {project.status || 'N/A'}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

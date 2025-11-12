@@ -43,9 +43,16 @@ import { supabase } from '@/lib/supabaseClient';
 
     export const createProject = async (projectData) => {
       try {
+        // Convert camelCase to snake_case for database
+        const { locationName, ...rest } = projectData;
+        const dbProjectData = {
+          ...rest,
+          location_name: locationName || rest.location_name
+        };
+        
         const { data, error } = await supabase
           .from('projects')
-          .insert([projectData])
+          .insert([dbProjectData])
           .select()
           .single();
         if (error) throw error;
@@ -139,7 +146,7 @@ import { supabase } from '@/lib/supabaseClient';
 
         const { error: profileUpdateError } = await supabase
           .from('profiles')
-          .update({ assignedProjectId: projectId })
+          .update({ assigned_project_id: projectId })
           .eq('id', userId);
 
         if (profileUpdateError) throw profileUpdateError;
@@ -168,12 +175,19 @@ import { supabase } from '@/lib/supabaseClient';
 
     export const updateProjectService = async (updatedProject) => {
       try {
-        const { id, manager_id, ...updateData } = updatedProject;
+        const { id, manager_id, locationName, ...updateData } = updatedProject;
+        
+        // Convert camelCase to snake_case for database
+        const dbUpdateData = {
+          ...updateData,
+          location_name: locationName || updateData.location_name,
+          manager_id
+        };
         
         // Update the project
         const { data: updatedProjectData, error: updateError } = await supabase
           .from('projects')
-          .update({ ...updateData, manager_id })
+          .update(dbUpdateData)
           .eq('id', id)
           .select()
           .single();
