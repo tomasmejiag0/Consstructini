@@ -1,12 +1,30 @@
 {
-  "name": "construction-management-app",
+  "name": "constructini",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "description": "Sistema de Gestión de Construcción Moderno - Plataforma web completa para la gestión de proyectos, tareas, trabajadores y asistencia en obras de construcción",
+  "author": "Tu Nombre",
+  "license": "MIT",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/constructini.git"
+  },
+  "keywords": [
+    "construction",
+    "management",
+    "react",
+    "supabase",
+    "vite",
+    "tailwindcss",
+    "project-management",
+    "task-management"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src --ext js,jsx"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.0.5",

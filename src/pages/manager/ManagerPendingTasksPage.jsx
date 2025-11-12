@@ -170,7 +170,7 @@ export default function ManagerPendingTasksPage() {
       const newComment = await createTaskComment({
         task_id: task.id,
         user_id: user.id,
-        content: commentText,
+        comment: commentText,
       });
 
       if (newComment) {
@@ -319,7 +319,7 @@ export default function ManagerPendingTasksPage() {
                                 <span className="text-sm font-bold text-accent">{comment.authorName}</span>
                                 <span className="text-xs text-muted-foreground">{format(new Date(comment.created_at), 'PPpp')}</span>
                               </div>
-                              <p className="text-sm text-foreground/80">{comment.content}</p>
+                              <p className="text-sm text-foreground/80">{comment.comment}</p>
                             </div>
                           ))
                         ) : (

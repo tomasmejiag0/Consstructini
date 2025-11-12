@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 
-const MAPS_API_KEY = 'Your_maps_api_key';
+const MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const defaultContainerStyle = {
   width: '100%',
