@@ -90,9 +90,6 @@
                 </form>
               </CardContent>
               <CardFooter className="text-center text-xs text-muted-foreground">
-                <p>
-                  Hint: password123
-                </p>
               </CardFooter>
             </Card>
           </motion.div>
