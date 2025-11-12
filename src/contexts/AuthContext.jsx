@@ -242,6 +242,8 @@ const AuthProviderInternal = ({ children }) => {
     }
     setLoading(true);
     try {
+      console.log('📤 Creating task with data:', taskData);
+      
       // Map frontend property names to database column names
       const transformedTaskData = {
         project_id: taskData.projectId,
@@ -252,13 +254,25 @@ const AuthProviderInternal = ({ children }) => {
         due_date: taskData.dueDate,
         created_by_user_id: user.id,
       };
+      
+      console.log('🔄 Transformed task data:', transformedTaskData);
+      
       const newTask = await createTaskService(transformedTaskData);
+      
+      if (!newTask) {
+        throw new Error('Task creation returned no data');
+      }
+      
+      console.log('✅ Task created successfully:', newTask);
+      
       toast({title: "Task Created", description: `Task "${taskData.title}" has been successfully created.`});
+      
       // Update global tasks state by adding the new task (more performant than refetching all)
       setTasks(prev => [...prev, newTask]);
 
       return newTask;
     } catch (error) {
+      console.error('❌ Task creation error:', error);
       handleError(error, "Task Creation Failed");
       return null;
     } finally {

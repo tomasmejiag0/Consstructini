@@ -15,59 +15,98 @@ import { supabase } from '@/lib/supabaseClient';
 
 // Nueva función para obtener los workers asignados a este proyecto
 async function fetchAssignedWorkers(projectId) {
+  console.log('🔍 Fetching workers for project:', projectId);
+  
   const { data: assignments, error: assignmentError } = await supabase
     .from('project_assignments')
     .select('user_id')
     .eq('project_id', projectId);
+  
   if (assignmentError) {
-    console.error('Error fetching assignments:', assignmentError);
+    console.error('❌ Error fetching assignments:', assignmentError);
     return [];
   }
-  const userIds = assignments.map(a => a.user_id);
-  if (userIds.length === 0) return [];
+  
+  console.log('✅ Project assignments found:', assignments?.length || 0, assignments);
+  
+  const userIds = assignments?.map(a => a.user_id) || [];
+  if (userIds.length === 0) {
+    console.warn('⚠️ No users assigned to this project');
+    return [];
+  }
+  
   const { data: workers, error: workersError } = await supabase
     .from('profiles')
-    .select('id, name')
+    .select('id, name, role')
     .in('id', userIds)
     .eq('role', 'worker');
+  
   if (workersError) {
-    console.error('Error fetching workers:', workersError);
+    console.error('❌ Error fetching workers:', workersError);
     return [];
   }
-  return workers;
+  
+  console.log('✅ Workers found:', workers?.length || 0, workers);
+  
+  // Debug: También traer todos los perfiles para ver qué roles tienen
+  const { data: allProfiles } = await supabase
+    .from('profiles')
+    .select('id, name, role')
+    .in('id', userIds);
+  
+  if (allProfiles && allProfiles.length > workers?.length) {
+    console.warn('⚠️ Some users are not workers. All profiles:', allProfiles);
+  }
+  
+  return workers || [];
 }
 
 const CreateTaskModal = ({ isOpen, setIsOpen, projectId, onTaskCreate, workersOnProject, onTaskCreatedLocally }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [assignedToUserId, setAssignedToUserId] = useState(null);
+  const [assignedToUserId, setAssignedToUserId] = useState('__unassigned__');
   const [dueDate, setDueDate] = useState('');
   const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log('📄 CreateTaskModal: Form submitted');
+    
     if (!title || !description) {
       toast({ variant: "destructive", title: "Error", description: "Please fill title and description." });
       return;
     }
+    
     const newTaskData = {
       projectId,
       title,
       description,
       status: 'Pending',
-      assignedToUserId: assignedToUserId || null,
+      assignedToUserId: assignedToUserId && assignedToUserId !== '__unassigned__' ? assignedToUserId : null,
       dueDate: dueDate || null,
     };
     
+    console.log('📊 CreateTaskModal: Task data prepared:', {
+      ...newTaskData,
+      assignedWorkerCount: workersOnProject.length
+    });
+    
     const createdTask = await onTaskCreate(newTaskData);
+    
+    console.log('🔍 CreateTaskModal: Task creation result:', createdTask);
 
     if (createdTask) {
+      console.log('✅ CreateTaskModal: Task created successfully, updating local state');
       onTaskCreatedLocally(createdTask);
       setTitle('');
       setDescription('');
-      setAssignedToUserId(null);
+      setAssignedToUserId('__unassigned__');
       setDueDate('');
       setIsOpen(false);
+    } else {
+      console.error('❌ CreateTaskModal: Task creation failed');
+      toast({ variant: "destructive", title: "Error", description: "Failed to create task. Please try again." });
     }
   };
   
@@ -108,11 +147,12 @@ const CreateTaskModal = ({ isOpen, setIsOpen, projectId, onTaskCreate, workersOn
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="assignedTo" className="text-right text-muted-foreground">Assign To</Label>
-              <Select value={assignedToUserId} onValueChange={setAssignedToUserId}>
+              <Select value={assignedToUserId || '__unassigned__'} onValueChange={setAssignedToUserId}>
                 <SelectTrigger className="col-span-3 bg-background/70">
                   <SelectValue placeholder="Assign to a worker (optional)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__unassigned__">Unassigned</SelectItem>
                   {workersOnProject.length > 0 ? (
                     workersOnProject.map(worker => (
                       <SelectItem key={worker.id} value={worker.id}>{worker.name}</SelectItem>
@@ -137,7 +177,7 @@ const CreateTaskModal = ({ isOpen, setIsOpen, projectId, onTaskCreate, workersOn
 const EditTaskModal = ({ isOpen, setIsOpen, task, onTaskEdit, workersOnProject }) => {
   const [title, setTitle] = useState(task?.title || '');
   const [description, setDescription] = useState(task?.description || '');
-  const [assignedToUserId, setAssignedToUserId] = useState(task?.assigned_to_user_id || null);
+  const [assignedToUserId, setAssignedToUserId] = useState(task?.assigned_to_user_id || '__unassigned__');
   const [dueDate, setDueDate] = useState(task?.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '');
   const { toast } = useToast();
 
@@ -145,7 +185,7 @@ const EditTaskModal = ({ isOpen, setIsOpen, task, onTaskEdit, workersOnProject }
     if (task) {
       setTitle(task.title);
       setDescription(task.description);
-      setAssignedToUserId(task.assigned_to_user_id);
+      setAssignedToUserId(task.assigned_to_user_id || '__unassigned__');
       setDueDate(task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '');
     }
   }, [task]);
@@ -160,7 +200,7 @@ const EditTaskModal = ({ isOpen, setIsOpen, task, onTaskEdit, workersOnProject }
       id: task.id,
       title,
       description,
-      assigned_to_user_id: assignedToUserId || null,
+      assigned_to_user_id: assignedToUserId && assignedToUserId !== '__unassigned__' ? assignedToUserId : null,
       due_date: dueDate || null,
     });
     setIsOpen(false);
@@ -208,11 +248,12 @@ const EditTaskModal = ({ isOpen, setIsOpen, task, onTaskEdit, workersOnProject }
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="editAssignedTo" className="text-right text-muted-foreground">Assign To</Label>
-              <Select value={assignedToUserId} onValueChange={setAssignedToUserId}>
+              <Select value={assignedToUserId || '__unassigned__'} onValueChange={setAssignedToUserId}>
                 <SelectTrigger className="col-span-3 bg-background/70">
                   <SelectValue placeholder="Assign to a worker (optional)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__unassigned__">Unassigned</SelectItem>
                   {workersOnProject.length > 0 ? (
                     workersOnProject.map(worker => (
                       <SelectItem key={worker.id} value={worker.id}>{worker.name}</SelectItem>
