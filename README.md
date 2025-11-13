@@ -110,7 +110,7 @@ Antes de comenzar, asegúrate de tener instalado:
 ### 1. Clonar el Repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/constructini.git
+git clone https://github.com/tomasmejiag0/consstructini.git
 cd constructini
 ```
 
@@ -122,10 +122,9 @@ npm install
 
 ### 3. Configurar Variables de Entorno
 
-Crea un archivo `.env` en la raíz del proyecto basado en `.env.example`:
+Crea un archivo `.env` en la raíz del proyecto :
 
-```bash
-cp .env.example .env
+
 ```
 
 Edita el archivo `.env` y agrega tus credenciales:
@@ -563,9 +562,9 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ## 👨‍💻 Autor
 
-**Tu Nombre**
-- GitHub: [@tu-usuario](https://github.com/tu-usuario)
-- Email: tu-email@example.com
+**Tomas Mejia**
+- GitHub: [@tomasmejiag0](https://github.com/tomasmejiag0)
+- Email: tomasmejiag2@gmail.com
 
 ## 🙏 Agradecimientos
 
@@ -578,7 +577,7 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 ## 📞 Soporte
 
 Si tienes preguntas o necesitas ayuda, por favor:
-- Abre un [Issue](https://github.com/tu-usuario/constructini/issues)
+- Abre un [Issue](https://github.com/tomasmejiag0/consstructini/issues)
 - Contacta al autor por email
 
 ---
